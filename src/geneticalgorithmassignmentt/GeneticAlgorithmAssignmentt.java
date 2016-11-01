@@ -1,6 +1,10 @@
 package geneticalgorithmassignmentt;
 
 import java.util.Arrays;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Scanner;
 
 /**
  *
@@ -45,6 +49,7 @@ public class GeneticAlgorithmAssignmentt {
         return fitness;
     }
     
+    //Tested
     public void calcPopulationFitness(Population population) {
 
         double populationFitness = 0;
@@ -117,6 +122,38 @@ public class GeneticAlgorithmAssignmentt {
             }
             //System.out.println(individual);
         }
+
+    }
+    
+    public byte[] convertFileToData(String file) throws FileNotFoundException {
+        String data = new Scanner(new File(file)).useDelimiter("\\Z").next();
+        String data2 = data.replaceAll("\\s", "");
+
+        byte[] b = new byte[data2.length()];
+        for (int i = 0; i < b.length; i++) {
+            b[i] = (byte) (data2.charAt(i) - '0');
+        }
+        //System.out.println(Arrays.toString(b));
+
+        return b;
+    }
+
+    public Rule[] splitToRules(byte[] data, int blockSize) {
+
+        int blockCount = data.length / blockSize;
+        Rule[] rules = new Rule[blockCount];
+        byte[] range;
+
+        for (int i = 0; i < blockCount; i++) {
+            int idx = (i) * blockSize;
+            range = Arrays.copyOfRange(data, idx, idx + (blockSize));
+
+            Rule r = new Rule(Arrays.copyOfRange(range, 0, 5), range[5]);
+            //System.out.println("Rule " + i +": " + r);
+            rules[i] = r;
+        }
+        //System.out.println(Arrays.toString(rules));
+        return rules;
 
     }
 
