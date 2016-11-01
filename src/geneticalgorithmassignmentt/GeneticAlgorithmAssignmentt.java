@@ -125,6 +125,7 @@ public class GeneticAlgorithmAssignmentt {
 
     }
     
+    //Tested
     public byte[] convertFileToData(String file) throws FileNotFoundException {
         String data = new Scanner(new File(file)).useDelimiter("\\Z").next();
         String data2 = data.replaceAll("\\s", "");
@@ -161,58 +162,61 @@ public class GeneticAlgorithmAssignmentt {
      * @param args the command line arguments
      */
     
-    public static void main(String[] args) {
+    public static void main(String[] args) throws FileNotFoundException {
         
         GeneticAlgorithmAssignmentt ga = new GeneticAlgorithmAssignmentt(0.002, 0.8);
         Population newPop = new Population(50);
         
-
-        int generationNo = 1;
+         Rule[] rules = ga.splitToRules(ga.convertFileToData("C:\\Users\\Rhys\\Documents\\GitHub\\GeneticAlgorithmAssignmentt\\src\\geneticalgorithmassignmentt\\data1.txt"), 6);
+         System.out.println(Arrays.toString(rules));
         
-        while (ga.conditionMet(newPop) == false) {
-            for (Individual individual : newPop.getIndividuals()) {
-                ga.calcFitness(individual);
-                
-            }
-            
-            
-            Population selected = new Population(newPop.size());
-            for (int i = 0; i < newPop.size(); i++) {
-                Individual best = ga.tournementSelection(newPop, 5);
-                selected.saveIndividual(i, best);
-               
-            }
-            
-            Population crossoverPop = new Population(newPop.size());
-            crossoverPop.saveIndividual(1, selected.getFittest());
-            
 
-            for (int i = 1; i < newPop.size(); i++) {
-                if (Math.random()< ga.crossoverRate){
-                Individual crossover = ga.crossover(selected.getFittest(), ga.tournementSelection(selected, 5));
-                crossoverPop.saveIndividual(i, crossover);
-               }else{
-                crossoverPop.saveIndividual(i, selected.getFittest());
-                }
-
-            }
-            
-            for (int i = 0; i < newPop.size(); i++) {
-                ga.mutate(crossoverPop.getIndividual(i));
-                ga.calcFitness(crossoverPop.getIndividual(i));
-
-            }
-            newPop = crossoverPop;
-            ga.calcPopulationFitness(newPop);
-            System.out.println(newPop.getPopulationFitness());
-            generationNo ++;
-        }
-        for (Individual individual : newPop.getIndividuals()) {
-            
-            System.out.println(individual.getFitness() + " " + individual.toString());
-        }
-        System.out.println("Generation: " + generationNo );
-
+//        int generationNo = 1;
+//        
+//        while (ga.conditionMet(newPop) == false) {
+//            for (Individual individual : newPop.getIndividuals()) {
+//                ga.calcFitness(individual);
+//                
+//            }
+//            
+//            
+//            Population selected = new Population(newPop.size());
+//            for (int i = 0; i < newPop.size(); i++) {
+//                Individual best = ga.tournementSelection(newPop, 5);
+//                selected.saveIndividual(i, best);
+//               
+//            }
+//            
+//            Population crossoverPop = new Population(newPop.size());
+//            crossoverPop.saveIndividual(1, selected.getFittest());
+//            
+//
+//            for (int i = 1; i < newPop.size(); i++) {
+//                if (Math.random()< ga.crossoverRate){
+//                Individual crossover = ga.crossover(selected.getFittest(), ga.tournementSelection(selected, 5));
+//                crossoverPop.saveIndividual(i, crossover);
+//               }else{
+//                crossoverPop.saveIndividual(i, selected.getFittest());
+//                }
+//
+//            }
+//            
+//            for (int i = 0; i < newPop.size(); i++) {
+//                ga.mutate(crossoverPop.getIndividual(i));
+//                ga.calcFitness(crossoverPop.getIndividual(i));
+//
+//            }
+//            newPop = crossoverPop;
+//            ga.calcPopulationFitness(newPop);
+//            System.out.println(newPop.getPopulationFitness());
+//            generationNo ++;
+//        }
+//        for (Individual individual : newPop.getIndividuals()) {
+//            
+//            System.out.println(individual.getFitness() + " " + individual.toString());
+//        }
+//        System.out.println("Generation: " + generationNo );
+//
     }
 
 }
