@@ -8,7 +8,7 @@ import java.util.Arrays;
  */
 public class Individual {
 
-    static int geneLength = 50;
+    static int geneLength = 60;
     private byte[] genes = new byte[geneLength];
     private double fitness = 0;
 
