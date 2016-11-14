@@ -29,6 +29,9 @@ public class Rule {
     public byte[] getVariables() {
         return variables;
     }
+     public int getVariable(int index) {
+        return variables[index];
+    }
 
     public void setVariables(byte[] variables) {
         this.variables = variables;
