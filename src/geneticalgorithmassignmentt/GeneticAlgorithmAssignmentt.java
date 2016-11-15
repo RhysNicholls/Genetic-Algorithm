@@ -14,10 +14,12 @@ public class GeneticAlgorithmAssignmentt {
 
     private double mutationRate;
     private double crossoverRate;
+    private int ruleSize;
 
-    public GeneticAlgorithmAssignmentt(double mutationRate, double crossoverRate) {
+    public GeneticAlgorithmAssignmentt(double mutationRate, double crossoverRate, int ruleSize) {
         this.mutationRate = mutationRate;
         this.crossoverRate = crossoverRate;
+        this.ruleSize = ruleSize;
     }
 
     //Tested
@@ -30,30 +32,30 @@ public class GeneticAlgorithmAssignmentt {
         return false;
     }
 
-public double calcFitness(Rule[] rules, Individual individual) {
+    public double calcFitness(Rule[] data, Individual individual) {
 
         byte[] indi = individual.getGenes();
-        Rule[] in = splitToRules(indi, 6);
+        Rule[] in = splitToRules(indi);
         int fitnessCount = 0;
         boolean found = false;
         int count = 0;
 
-        for (int j = 0; j < rules.length; j++) {
+        for (int j = 0; j < data.length; j++) {
             found = false;
             count = 0;
             for (int i = 0; i < in.length && !found; i++) {
 
-                for (int k = 0; k < rules[i].getVariables().length; k++) {
+                for (int k = 0; k < data[i].getVariables().length; k++) {
 
-                    if (rules[j].getVariable(k) == in[i].getVariable(k)) {
+                    if (data[j].getVariable(k) == in[i].getVariable(k) || in[i].getVariable(k) == 2) {
                         count++;
 
                     }
 
                 }
-                if (count == rules[i].getVariables().length) {
+                if (count == data[i].getVariables().length) {
 
-                    if (rules[j].getOutcome() == in[i].getOutcome()) {
+                    if (data[j].getOutcome() == in[i].getOutcome()) {
                         fitnessCount++;
 
                         found = true;
@@ -74,75 +76,6 @@ public double calcFitness(Rule[] rules, Individual individual) {
         return fitness;
 
     }
-
-//    public double calcFitness(Rule[] rules, Individual individual) {
-//        byte[] indi = individual.getGenes();
-//        Rule[] in = splitToRules(indi, 6);
-//        int fitnessCount = 0;
-//        boolean found = false;
-//        int count = 0;
-//
-//        System.out.println("Data From Data File");
-//        System.out.println("");
-//        for (int i = 0; i < rules.length; i++) {
-//
-//            System.out.println("Rule: " + (i + 1) + " " + rules[i]);
-//
-//        }
-//        System.out.println("");
-//        System.out.println("Sets Created From Individual");
-//        System.out.println("");
-//        for (int i = 0; i < in.length; i++) {
-//            System.out.println("Set: " + (i + 1) + " " + in[i]);
-//
-//        }
-//
-//        for (int j = 0; j < rules.length; j++) {
-//            found = false;
-//            System.out.println("");
-//            System.out.println("Comparison " + (j + 1));
-//            System.out.println("");
-//            System.out.println("Rule: " + (j + 1) + " " + rules[j]);
-//            System.out.println("");
-//            for (int i = 0; i < in.length && !found; i++) {
-//
-//                System.out.println("Set: " + (i + 1) + " " + in[i]);
-//
-//                for (int k = 0; k < rules[i].getVariables().length; k++) {
-//
-//                    if (rules[j].getVariable(k) == in[i].getVariable(k)) {
-//                        count++;
-//                        //System.out.println("yes");
-//                        
-//                    }
-//                    
-//
-//                }
-//                if (count == rules[i].getVariables().length) {
-//                    System.out.println("Match");
-//                            if (rules[j].getOutcome() == in[i].getOutcome()) {
-//                                fitnessCount++;
-//
-//                                System.out.println("Outcome Match");
-//
-//                                found = true;
-//
-//                            }
-//
-//                        } else {
-//                            count = 0;
-//                        }
-//
-//            }
-//        }
-//        System.out.println("");
-//        double fitness = (double) fitnessCount;
-//        System.out.println(fitness);
-//        individual.setFitness(fitness);
-//
-//        return fitness;
-//
-//    }
 
     //Tested
     public void calcPopulationFitness(Rule[] rules, Population population) {
@@ -208,19 +141,36 @@ public double calcFitness(Rule[] rules, Individual individual) {
         for (int i = 0; i < individual.size(); i++) {
 
             if (mutationRate > Math.random()) {
-                byte newGene = 1;
-                if (individual.getGene(i) == 1) {
-                    newGene = 0;
+                if (i % ruleSize != (ruleSize - 1)) {
+                    byte newGene = 0;
+                    switch (individual.getGene(i)) {
+                        case 0:
+                            newGene = 1;
+                            break;
+                        case 1:
+                            newGene = 2;
+                            break;
+                        case 2:
+                            newGene = 0;
+                            break;
+
+                    }
+                    individual.setGene(i, newGene);
+
+                } else {
+                    byte newGene = 1;
+                    if (individual.getGene(i) == 1) {
+                        newGene = 0;
+                    }
+                    individual.setGene(i, newGene);
                 }
-                individual.setGene(i, newGene);
 
             }
             //System.out.println(individual);
         }
-
     }
-
     //Tested
+
     public byte[] convertFileToData(String file) throws FileNotFoundException {
         String data = new Scanner(new File(file)).useDelimiter("\\Z").next();
         String data2 = data.replaceAll("\\s", "");
@@ -235,15 +185,15 @@ public double calcFitness(Rule[] rules, Individual individual) {
     }
 
     //Tested
-    public Rule[] splitToRules(byte[] data, int blockSize) {
+    public Rule[] splitToRules(byte[] data) {
 
-        int blockCount = (data.length / blockSize) + 1;
+        int blockCount = (data.length / ruleSize) + 1;
         Rule[] rules = new Rule[blockCount - 1];
         byte[] range = null;
 
         for (int i = 1; i < blockCount; i++) {
-            int idx = (i - 1) * blockSize;
-            range = Arrays.copyOfRange(data, idx, idx + (blockSize));
+            int idx = (i - 1) * ruleSize;
+            range = Arrays.copyOfRange(data, idx, idx + (ruleSize));
 
             Rule r = new Rule(Arrays.copyOfRange(range, 0, 5), range[5]);
             // System.out.println("Rule " + i +": " + r);
@@ -254,78 +204,68 @@ public double calcFitness(Rule[] rules, Individual individual) {
 
     }
 
-    public void compare() {
-        char[] firstArray = {'a', 'b', 'c'};
-        char[] secondArray = {'a', 'b', 'c'};
-
-        for (int i = 0; i < firstArray.length; i++) {
-            if (firstArray[i] == secondArray[i] || secondArray[i] == '#') {
-                System.out.println("True");
-
-            } else {
-                System.out.println("False");
-            }
-        }
-
-    }
-
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) throws FileNotFoundException {
 
-        GeneticAlgorithmAssignmentt ga = new GeneticAlgorithmAssignmentt(0.002, 0.8);
-        Population newPop = new Population(100);
+        GeneticAlgorithmAssignmentt ga = new GeneticAlgorithmAssignmentt(0.002, 0.8, 6);
+        Population newPop = new Population(50);
 
-        Rule[] rules = ga.splitToRules(ga.convertFileToData("C:\\Users\\Rhys\\Documents\\GitHub\\GeneticAlgorithmAssignmentt\\src\\geneticalgorithmassignmentt\\data1.txt"), 6);
+        Rule[] rules = ga.splitToRules(ga.convertFileToData("C:\\Users\\Rhys\\Documents\\GitHub\\GeneticAlgorithmAssignmentt\\src\\geneticalgorithmassignmentt\\data1.txt"));
 
         //ga.calcFitness(rules, newPop.getIndividual(1));
-
         int generationNo = 1;
+//        for (Individual individual : newPop.getIndividuals()) {
+//                ga.calcFitness(rules, individual);
+//                ga.mutate(individual);
+//                System.out.println(individual);
+//
+//            }
 
-         while (ga.conditionMet(newPop) == false) {
-        //   while (generationNo < 50) {
-                for (Individual individual : newPop.getIndividuals()) {
-                    ga.calcFitness(rules, individual);
-
-                }
-
-                Population selected = new Population(newPop.size());
-                for (int i = 0; i < newPop.size(); i++) {
-                    Individual best = ga.tournementSelection(rules, newPop, 5);
-                    selected.saveIndividual(i, best);
-
-                }
-
-                Population crossoverPop = new Population(newPop.size());
-                crossoverPop.saveIndividual(0, newPop.getFittest());
-
-                for (int i = 1; i < newPop.size(); i++) {
-                    if (Math.random() < ga.crossoverRate) {
-                        Individual crossover = ga.crossover(selected.getFittest(), ga.tournementSelection(rules, selected, 5));
-                        crossoverPop.saveIndividual(i, crossover);
-                    } else {
-                        crossoverPop.saveIndividual(i, selected.getFittest());
-                    }
-
-                }
-
-                for (int i = 1; i < newPop.size(); i++) {
-                    ga.mutate(crossoverPop.getIndividual(i));
-                    ga.calcFitness(rules, crossoverPop.getIndividual(i));
-
-                }
-                newPop = crossoverPop;
-
-                ga.calcPopulationFitness(rules, newPop);
-                System.out.println("Generation: " + generationNo + " Generation Average Fitness: " + (newPop.getPopulationFitness() / newPop.size()) + " Fittest Individual: " + newPop.getFittest().getFitness());
-                generationNo++;
-            }
+        while (ga.conditionMet(newPop) == false) {
+        //while (generationNo < 50) {
             for (Individual individual : newPop.getIndividuals()) {
+                ga.calcFitness(rules, individual);
 
-                System.out.println(individual.getFitness() + " " + individual.toString());
             }
-            System.out.println("Generation: " + generationNo);
+
+//            Population selected = new Population(newPop.size());
+//            for (int i = 0; i < newPop.size(); i++) {
+//                Individual best = ga.tournementSelection(rules, newPop, 5);
+//                selected.saveIndividual(i, best);
+//
+//            }
+
+            Population crossoverPop = new Population(newPop.size());
+            crossoverPop.saveIndividual(0, newPop.getFittest());
+
+            for (int i = 1; i < newPop.size(); i++) {
+                if (Math.random() < ga.crossoverRate) {
+                    Individual crossover = ga.crossover(newPop.getFittest(), ga.tournementSelection(rules, newPop, 5));
+                    crossoverPop.saveIndividual(i, crossover);
+                } else {
+                    crossoverPop.saveIndividual(i, newPop.getFittest());
+                }
+
+            }
+
+            for (int i = 1; i < newPop.size(); i++) {
+                ga.mutate(crossoverPop.getIndividual(i));
+                ga.calcFitness(rules, crossoverPop.getIndividual(i));
+
+            }
+            newPop = crossoverPop;
+
+            ga.calcPopulationFitness(rules, newPop);
+            System.out.println("Generation: " + generationNo + " Generation Average Fitness: " + (newPop.getPopulationFitness() / newPop.size()) + " Fittest Individual: " + newPop.getFittest().getFitness());
+            generationNo++;
+        }
+        for (Individual individual : newPop.getIndividuals()) {
+
+            System.out.println(individual.getFitness() + " " + individual.toString());
+        }
+        System.out.println("Generation: " + generationNo);
     }
 
 }
