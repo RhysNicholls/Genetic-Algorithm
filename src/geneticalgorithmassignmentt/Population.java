@@ -10,6 +10,7 @@ public final class Population {
 
     Individual[] individuals;
     double populationFitness = 0;
+    double populationAverage = 0;
 
     public Population(int populationSize) {
         individuals = new Individual[populationSize];
@@ -19,6 +20,14 @@ public final class Population {
             saveIndividual(i, newIndividual);
 
         }
+    }
+
+    public double getPopulationAverage() {
+        return populationAverage;
+    }
+
+    public void setPopulationAverage(double populationAverage) {
+        this.populationAverage = populationAverage;
     }
 
     public Individual[] getIndividuals() {
@@ -50,14 +59,18 @@ public final class Population {
         return individuals.length;
     }
 
-    public Individual getFittest() {
-        Individual fittest = individuals[0];
-        
-        for (int i = 0; i < size(); i++) {
-            if (fittest.getFitness() <= getIndividual(i).getFitness()) {
-                fittest = getIndividual(i);
+    public Individual getFittest(int offset) {
+        Arrays.sort(this.individuals, new Comparator<Individual>() {
+            @Override
+            public int compare(Individual o1, Individual o2) {
+                if (o1.getFitness() > o2.getFitness()) {
+                    return -1;
+                } else if (o1.getFitness() < o2.getFitness()) {
+                    return 1;
+                }
+                return 0;
             }
-        }
-        return fittest;
+        });
+        return this.individuals[offset];
     }
 }
